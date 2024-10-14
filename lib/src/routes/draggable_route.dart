@@ -238,7 +238,12 @@ class DraggableRoute<T> extends PageRoute<T>
                 ),
                 end: _offset.value & constraints.biggest,
               );
-
+              final scale = _offset.value.distance == 0.0
+                  ? 1.0
+                  : min(
+                      1.0 - (_offset.value.dy / 3000).abs(),
+                      1.0 - (_offset.value.dx / 1200).abs(),
+                    );
               return Stack(
                 clipBehavior: Clip.none,
                 children: [
@@ -254,7 +259,10 @@ class DraggableRoute<T> extends PageRoute<T>
                         borderRadius: borderRadius ??
                             DraggableRouteTheme.of(context).borderRadius,
                       ),
-                      child: child,
+                      child: Transform.scale(
+                        scale: scale,
+                        child: child,
+                      ),
                     ),
                   ),
                   AnimatedBuilder(
