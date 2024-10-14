@@ -57,6 +57,9 @@ class DraggableRoute<T> extends PageRoute<T>
   final _offset = ValueNotifier(Offset.zero);
   var _velocity = Offset.zero;
 
+  AnimationController? _reverseController;
+  Animation<Offset>? _reverseAnimation;
+
   void handleDragStart(DragStartDetails details) {
     navigator!.didStartUserGesture();
     _offset.value = Offset.zero;
@@ -89,13 +92,14 @@ class DraggableRoute<T> extends PageRoute<T>
     if (!isActive) return;
 
     if (!navigator!.userGestureInProgress) {
-      if (_offset.value.distanceSquared > 100 ||
-          _velocity.distanceSquared > 100) {
+      if (_offset.value.distance > 100 ||
+          _velocity.distance > 100) {
         navigator!.pop();
       } else {
-        _offset.value = Offset.zero;
-        _velocity = Offset.zero;
-        controller?.value = 1.0;
+        // _offset.value = Offset.zero;
+        // _velocity = Offset.zero;
+        // controller?.value = 1.0;
+        _performReverseAnimation();
       }
     } else {
       if (_offset.value != Offset.zero) {
@@ -105,7 +109,30 @@ class DraggableRoute<T> extends PageRoute<T>
       }
     }
   }
+ void _performReverseAnimation() async {
+    _reverseController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: navigator!,
+    );
+    _reverseAnimation = Tween<Offset>(
+      begin: _offset.value,
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _reverseController!,
+      curve: Curves.easeInOut,
+    ));
+    _reverseAnimation?.addListener(() {
+      _offset.value = _reverseAnimation!.value;
+    });
 
+    await _reverseController?.forward();
+    _offset.value = Offset.zero;
+    _velocity = Offset.zero;
+    controller?.value = 1.0;
+    _reverseController?.dispose();
+    _reverseController = null;
+    _reverseAnimation = null;
+  }
   @override
   void install() {
     super.install();
