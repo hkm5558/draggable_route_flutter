@@ -20,17 +20,9 @@ class NoSourceExitTransition extends StatelessWidget {
       child: AnimatedBuilder(
         animation: animation,
         builder: (context, child) {
-          final dissolveFilterBuilder =
-              DraggableRouteTheme.of(context).dissolveFilterBuilder;
-          if (dissolveFilterBuilder != null) {
-            return ImageFiltered(
-              enabled: animation.isAnimating,
-              imageFilter: dissolveFilterBuilder(ReverseAnimation(animation)),
-              child: child,
-            );
-          }
-
-          return child!;
+          final dissolveBuilder =
+              DraggableRouteTheme.of(context).dissolveBuilder;
+          return dissolveBuilder?.call(animation, child!) ?? child!;
         },
         child: child,
       ),

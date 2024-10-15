@@ -9,14 +9,50 @@ final kDefaultTheme = DraggableRouteTheme(
   transitionCurve: Curves.linear,
   transitionCurveOut: Curves.easeInOutCubic,
   borderRadius: const BorderRadius.all(Radius.circular(24)),
-  backdropFilterBuilder: (animation) => ImageFilter.blur(
-    sigmaX: 5 * animation.value,
-    sigmaY: 5 * animation.value,
+  backdropBuilder: (animation, child) => BackdropFilter(
+    filter: ImageFilter.blur(
+      sigmaX: 5 * animation.value,
+      sigmaY: 5 * animation.value,
+    ),
+    child: child,
   ),
-  dissolveFilterBuilder: (animation) => ImageFilter.blur(
-    sigmaX: 10 * animation.value,
-    sigmaY: 10 * animation.value,
-    tileMode: TileMode.decal,
+  dissolveBuilder: (animation, child) {
+    final reverse = ReverseAnimation(animation);
+    return ImageFiltered(
+      enabled: animation.isAnimating,
+      imageFilter: ImageFilter.blur(
+        sigmaX: 10 * reverse.value,
+        sigmaY: 10 * reverse.value,
+        tileMode: TileMode.decal,
+      ),
+      child: child,
+    );
+  },
+  opacityBuilder: (animation, child) => FadeTransition(
+    opacity: Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: animation,
+        curve: Interval(
+          0.1,
+          0.5,
+          curve: Curves.easeInOut,
+        ),
+      ),
+    ),
+    child: child,
+  ),
+  sourceOpacityBuilder: (animation, child) => FadeTransition(
+    opacity: Tween<double>(begin: 1, end: 0).animate(
+      CurvedAnimation(
+        parent: animation,
+        curve: Interval(
+          0.1,
+          0.5,
+          curve: Curves.easeInOut,
+        ),
+      ),
+    ),
+    child: child,
   ),
 );
 

@@ -3,8 +3,9 @@ import 'dart:ui';
 import 'package:draggable_route/src/theme/default_draggable_theme.dart';
 import 'package:flutter/material.dart';
 
-typedef ImageFilterTransitionBuilder = ImageFilter Function(
+typedef DraggableRouteTransitionBuilder = Widget Function(
   Animation<double> animation,
+  Widget child,
 );
 
 /// {@template draggable_route.DraggableRouteTheme}
@@ -25,13 +26,19 @@ class DraggableRouteTheme extends ThemeExtension<DraggableRouteTheme> {
 
 // #region Filters
 
-  /// Background filter animation builder
-  final ImageFilterTransitionBuilder? backdropFilterBuilder;
+  /// Background animation builder
+  final DraggableRouteTransitionBuilder? backdropBuilder;
 
-  /// Dissolve filter animation builder.
+  /// Dissolve animation builder.
   ///
   /// Used when source was not provided or no longer alive
-  final ImageFilterTransitionBuilder? dissolveFilterBuilder;
+  final DraggableRouteTransitionBuilder? dissolveBuilder;
+
+  /// source widget opacity animation builder.
+  final DraggableRouteTransitionBuilder? sourceOpacityBuilder;
+
+  /// opacity animation builder.
+  final DraggableRouteTransitionBuilder? opacityBuilder;
 
 // #endregion
 
@@ -57,8 +64,10 @@ class DraggableRouteTheme extends ThemeExtension<DraggableRouteTheme> {
     this.borderRadius = BorderRadius.zero,
     this.settings = kDefaultSettings,
     this.transitionCurveOut,
-    this.backdropFilterBuilder,
-    this.dissolveFilterBuilder,
+    this.backdropBuilder,
+    this.dissolveBuilder,
+    this.opacityBuilder,
+    this.sourceOpacityBuilder,
   });
 
   /// {@macro draggable_route.DraggableRouteTheme}

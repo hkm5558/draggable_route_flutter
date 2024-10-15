@@ -92,8 +92,7 @@ class DraggableRoute<T> extends PageRoute<T>
     if (!isActive) return;
 
     if (!navigator!.userGestureInProgress) {
-      if (_offset.value.distance > 100 ||
-          _velocity.distance > 100) {
+      if (_offset.value.distance > 100 || _velocity.distance > 100) {
         navigator!.pop();
       } else {
         // _offset.value = Offset.zero;
@@ -109,7 +108,8 @@ class DraggableRoute<T> extends PageRoute<T>
       }
     }
   }
- void _performReverseAnimation() async {
+
+  void _performReverseAnimation() async {
     _reverseController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: navigator!,
@@ -133,6 +133,7 @@ class DraggableRoute<T> extends PageRoute<T>
     _reverseController = null;
     _reverseAnimation = null;
   }
+
   @override
   void install() {
     super.install();
@@ -186,19 +187,12 @@ class DraggableRoute<T> extends PageRoute<T>
       reverseCurve: theme.transitionCurveOut,
     );
 
-    final backdropFilterBuilder = theme.backdropFilterBuilder;
+    final backdropBuilder = theme.backdropBuilder;
 
     if (source == null || !source.mounted) {
       return _wrap(
         (context, child) {
-          if (backdropFilterBuilder != null) {
-            return BackdropFilter(
-              filter: backdropFilterBuilder(animation),
-              child: child,
-            );
-          }
-
-          return child;
+          return backdropBuilder?.call(animation, child) ?? child;
         },
         ListenableBuilder(
           listenable: _entered,
@@ -241,14 +235,7 @@ class DraggableRoute<T> extends PageRoute<T>
     } else {
       return _wrap(
         (context, child) {
-          if (backdropFilterBuilder != null) {
-            return BackdropFilter(
-              filter: backdropFilterBuilder(animation),
-              child: child,
-            );
-          }
-
-          return child;
+          return backdropBuilder?.call(animation, child) ?? child;
         },
         LayoutBuilder(
           builder: (context, constraints) => ListenableBuilder(
@@ -288,7 +275,8 @@ class DraggableRoute<T> extends PageRoute<T>
                       ),
                       child: Transform.scale(
                         scale: scale,
-                        child: child,
+                        child: theme.opacityBuilder?.call(animation, child!) ??
+                            child!,
                       ),
                     ),
                   ),
@@ -301,13 +289,16 @@ class DraggableRoute<T> extends PageRoute<T>
                     child: IgnorePointer(
                       child: FittedBox(
                         alignment: Alignment.topCenter,
-                        child: FadeTransition(
-                          opacity: Tween<double>(begin: 1, end: 0)
-                              .animate(animation),
-                          child: SizedBox.fromSize(
-                            size: startRO.size,
-                            child: source.widget,
-                          ),
+                        child: Builder(
+                          builder: (context) {
+                            final child = SizedBox.fromSize(
+                              size: startRO.size,
+                              child: source.widget,
+                            );
+                            return theme.sourceOpacityBuilder
+                                    ?.call(animation, child) ??
+                                child;
+                          },
                         ),
                       ),
                     ),
