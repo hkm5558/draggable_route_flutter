@@ -49,6 +49,8 @@ class _DragAreaState extends State<DragArea> {
             () => verticalEdge,
             settings.edgeSlop,
             settings.slop,
+            settings.leftReceptiveEdge,
+            settings.topReceptiveEdge,
           ),
           (instance) => instance //
             ..onStart = onPanStart
@@ -132,12 +134,16 @@ class _PanGestureRecognizer extends PanGestureRecognizer {
 
   final double edgeSlop;
   final double defaultSlop;
+  double? leftReceptiveEdge;
+  double? topReceptiveEdge;
 
   _PanGestureRecognizer(
     this.horizontalEdge,
     this.verticalEdge,
     this.edgeSlop,
     this.defaultSlop,
+    this.leftReceptiveEdge,
+    this.topReceptiveEdge,
   );
 
   @override
@@ -145,14 +151,43 @@ class _PanGestureRecognizer extends PanGestureRecognizer {
     PointerDeviceKind pointerDeviceKind,
     double? deviceTouchSlop,
   ) {
+    // 获取初始位置的 x 和 y 坐标
+    final initialX = initialPosition.global.dx;
+    final initialY = initialPosition.global.dy;
+
+    // 获取 delta 值
+    var delta = (finalPosition.global - initialPosition.global);
+
+    // 检查手势方向和起始位置
+    if (delta.dx.abs() > delta.dy.abs()) {
+      if (leftReceptiveEdge != null) {
+        // 横向手势
+        if (delta.dx > 0 && initialX <= leftReceptiveEdge!) {
+          // 从左往右滑动，且起始位置在左边缘 40 像素以内
+          // 符合条件，继续执行原有逻辑
+        } else {
+          return false; // 不满足条件，返回 false
+        }
+      }
+    } else {
+      if (topReceptiveEdge != null) {
+        // 纵向手势
+        if (delta.dy > 0 && initialY <= topReceptiveEdge!) {
+          // 从上往下滑动，且起始位置在上边缘 100 像素以内
+          // 符合条件，继续执行原有逻辑
+        } else {
+          return false; // 不满足条件，返回 false
+        }
+      }
+    }
+
+    // 如果水平和垂直边缘都在中间位置，调用父类实现
     if (horizontalEdge() == _Edge.middle && verticalEdge() == _Edge.middle) {
       return super.hasSufficientGlobalDistanceToAccept(
         pointerDeviceKind,
         deviceTouchSlop,
       );
     }
-
-    var delta = (finalPosition.global - initialPosition.global);
 
     var ySlop = switch (verticalEdge()) {
       _Edge.start when delta.dy > 0 => edgeSlop,
@@ -168,6 +203,6 @@ class _PanGestureRecognizer extends PanGestureRecognizer {
 
     final slop = delta.dx.abs() > delta.dy.abs() ? xSlop : ySlop;
 
-    return globalDistanceMoved.abs() > slop;
+    return globalDistanceMoved.abs() > slop; // 返回是否接受其他情况的手势
   }
 }

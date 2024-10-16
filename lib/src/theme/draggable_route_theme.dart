@@ -98,8 +98,14 @@ class DraggableRouteSettings {
   /// drag slop on the edge on scrollable
   final double edgeSlop;
 
+  final double? leftReceptiveEdge;
+
+  final double? topReceptiveEdge;
+
   const DraggableRouteSettings({
     required this.slop,
     required this.edgeSlop,
+    required this.leftReceptiveEdge,
+    required this.topReceptiveEdge,
   });
 }
