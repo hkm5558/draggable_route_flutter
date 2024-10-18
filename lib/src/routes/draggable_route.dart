@@ -73,7 +73,7 @@ class DraggableRoute<T> extends PageRoute<T>
 
   void handleDragCancel() {
     if (!isActive) return;
-
+    if (_offset.value == Offset.zero) return;
     if (navigator!.userGestureInProgress) {
       navigator!.didStopUserGesture();
     }
