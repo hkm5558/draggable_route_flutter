@@ -98,14 +98,20 @@ class DraggableRouteSettings {
   /// drag slop on the edge on scrollable
   final double edgeSlop;
 
+  /// 手势触发超过指定间距 接受 pop 否则 恢复原状态
   final double? leftReceptiveEdge;
 
+  /// 手势触发超过指定间距 接受 pop 否则 恢复原状态
   final double? topReceptiveEdge;
+
+  /// 左侧间距内的手势忽略
+  final double? leftIgnoreEdge;
 
   const DraggableRouteSettings({
     required this.slop,
     required this.edgeSlop,
     required this.leftReceptiveEdge,
     required this.topReceptiveEdge,
+    required this.leftIgnoreEdge,
   });
 }

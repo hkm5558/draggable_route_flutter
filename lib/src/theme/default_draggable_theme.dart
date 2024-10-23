@@ -62,4 +62,5 @@ const kDefaultSettings = DraggableRouteSettings(
   slop: 100,
   leftReceptiveEdge: 40,
   topReceptiveEdge: 100,
+  leftIgnoreEdge: 0,
 );

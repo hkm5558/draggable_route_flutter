@@ -139,7 +139,7 @@ class DraggableRoute<T> extends PageRoute<T>
       curve: Curves.easeInOut,
     ));
     _reverseAnimation?.addListener(() {
-      _offset.value = _reverseAnimation!.value;
+      _offset.value = _reverseAnimation?.value ?? Offset.zero;
     });
 
     await _reverseController?.forward();

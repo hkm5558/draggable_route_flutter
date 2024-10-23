@@ -28,7 +28,7 @@ class _DragAreaState extends State<DragArea> {
   _Edge verticalEdge = _Edge.start;
 
   late DraggableRoute route;
-
+  bool _shouldHandle = false;
   @override
   void didChangeDependencies() {
     route = ModalRoute.of(context) as DraggableRoute;
@@ -93,18 +93,35 @@ class _DragAreaState extends State<DragArea> {
   }
 
   void onPanStart(DragStartDetails details) {
+    final settings = widget.settings ?? //
+        DraggableRouteTheme.of(context).settings;
+    if (settings.leftIgnoreEdge != null &&
+        details.globalPosition.dx < settings.leftIgnoreEdge!) {
+      _shouldHandle = false;
+      return;
+    }
+    _shouldHandle = true;
     route.handleDragStart(details);
   }
 
   void onPanCancel() {
+    if (!_shouldHandle) {
+      return;
+    }
     route.handleDragCancel();
   }
 
   void onPanUpdate(DragUpdateDetails details) {
+    if (!_shouldHandle) {
+      return;
+    }
     route.handleDragUpdate(details);
   }
 
   void onPanEnd(DragEndDetails details) {
+    if (!_shouldHandle) {
+      return;
+    }
     route.handleDragEnd(details);
   }
 
@@ -136,7 +153,6 @@ class _PanGestureRecognizer extends PanGestureRecognizer {
   final double defaultSlop;
   double? leftReceptiveEdge;
   double? topReceptiveEdge;
-
   _PanGestureRecognizer(
     this.horizontalEdge,
     this.verticalEdge,
@@ -157,7 +173,6 @@ class _PanGestureRecognizer extends PanGestureRecognizer {
 
     // 获取 delta 值
     var delta = (finalPosition.global - initialPosition.global);
-
     // 检查手势方向和起始位置
     if (delta.dx.abs() > delta.dy.abs()) {
       if (leftReceptiveEdge != null) {
