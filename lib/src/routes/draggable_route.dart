@@ -64,18 +64,12 @@ class DraggableRoute<T> extends PageRoute<T>
     if (navigator?.canPop() != true) {
       return;
     }
-    if (source?.mounted != true) {
-      return;
-    }
     navigator?.didStartUserGesture();
     _offset.value = Offset.zero;
   }
 
   void handleDragUpdate(DragUpdateDetails details) {
     if (navigator?.canPop() != true) {
-      return;
-    }
-    if (source?.mounted != true) {
       return;
     }
     _offset.value += details.delta;
