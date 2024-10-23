@@ -61,11 +61,23 @@ class DraggableRoute<T> extends PageRoute<T>
   Animation<Offset>? _reverseAnimation;
 
   void handleDragStart(DragStartDetails details) {
-    navigator!.didStartUserGesture();
+    if (navigator?.canPop() != true) {
+      return;
+    }
+    if (source?.mounted != true) {
+      return;
+    }
+    navigator?.didStartUserGesture();
     _offset.value = Offset.zero;
   }
 
   void handleDragUpdate(DragUpdateDetails details) {
+    if (navigator?.canPop() != true) {
+      return;
+    }
+    if (source?.mounted != true) {
+      return;
+    }
     _offset.value += details.delta;
     _velocity = details.delta;
     _fling();
@@ -75,16 +87,21 @@ class DraggableRoute<T> extends PageRoute<T>
     if (!isActive) return;
     if (_offset.value == Offset.zero) return;
     if (navigator!.userGestureInProgress) {
-      navigator!.didStopUserGesture();
+      navigator?.didStopUserGesture();
     }
-
     _offset.value = Offset.zero;
     _velocity = Offset.zero;
     controller?.value = 1.0;
   }
 
   void handleDragEnd(DragEndDetails details) {
-    navigator!.didStopUserGesture();
+    if (navigator?.canPop() != true) {
+      return;
+    }
+    if (navigator?.userGestureInProgress != true) {
+      return;
+    }
+    navigator?.didStopUserGesture();
     _fling();
   }
 
@@ -93,7 +110,7 @@ class DraggableRoute<T> extends PageRoute<T>
 
     if (!navigator!.userGestureInProgress) {
       if (_offset.value.distance > 100 || _velocity.distance > 100) {
-        navigator!.pop();
+        navigator?.pop();
       } else {
         // _offset.value = Offset.zero;
         // _velocity = Offset.zero;
@@ -241,6 +258,15 @@ class DraggableRoute<T> extends PageRoute<T>
           builder: (context, constraints) => ListenableBuilder(
             listenable: _offset,
             builder: (context, child) {
+              RenderBox? renderBox;
+              try {
+                renderBox = source.findRenderObject() as RenderBox;
+              } catch (e) {
+                print("error = $e");
+              }
+              if (renderBox == null || !renderBox!.attached) {
+                return const SizedBox.shrink();
+              }
               final startRO = source.findRenderObject() as RenderBox;
               final startTransform = startRO.getTransformTo(null);
               final rectTween = RectTween(
